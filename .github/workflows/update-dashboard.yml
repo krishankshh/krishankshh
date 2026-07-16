@@ -20,10 +20,10 @@ jobs:
       - name: Checkout profile repo
         uses: actions/checkout@v4
 
-      - name: Update latest commit panel
+      - name: Update dashboard panels
         env:
           GH_TOKEN: ${{ secrets.PROFILE_PAT }}
-        run: bash scripts/update_latest_commit.sh
+        run: python3 scripts/update_dashboard.py
 
       - name: Commit changes if anything updated
         run: |
