@@ -1,0 +1,38 @@
+name: Update Dashboard — Latest Commit
+
+on:
+  schedule:
+    # Runs every 6 hours. Adjust the cron if you want it more/less frequent.
+    - cron: '0 */6 * * *'
+  workflow_dispatch: {}     # lets you trigger it manually from the Actions tab
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'header.svg'        # avoid the workflow re-triggering itself in a loop
+
+permissions:
+  contents: write
+
+jobs:
+  update-latest-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout profile repo
+        uses: actions/checkout@v4
+
+      - name: Update latest commit panel
+        env:
+          GH_TOKEN: ${{ secrets.PROFILE_PAT }}
+        run: bash scripts/update_latest_commit.sh
+
+      - name: Commit changes if anything updated
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- header.svg; then
+            echo "No changes to commit."
+          else
+            git add header.svg
+            git commit -m "chore: auto-update latest commit panel"
+            git push
+          fi
